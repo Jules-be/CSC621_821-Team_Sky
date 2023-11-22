@@ -14,6 +14,9 @@ folder_path = sys.argv[1]
 # Convert slice_index to integer
 try:
     slice_idx = int(sys.argv[2])
+    if slice_idx < 0 or slice_idx > 9:
+        print("Error: slice_index must be between 0 and 9.")
+        sys.exit(1)
 except ValueError:
     print("Error: slice_index must be an integer.")
     sys.exit(1)
