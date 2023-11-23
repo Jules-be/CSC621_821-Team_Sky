@@ -24,8 +24,11 @@ except ValueError:
 # Load the image
 image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(folder_path))
 
+# Denoise the image
+denoised_image = sitk.GrayscaleDilate(image)
+
 # Rescale the intensity to 0-255
-rescaled_image = sitk.RescaleIntensity(image, 0, 255)
+rescaled_image = sitk.RescaleIntensity(denoised_image, 0, 255)
 
 # Convert the SimpleITK image to a NumPy array
 np_image = sitk.GetArrayFromImage(rescaled_image)
@@ -76,8 +79,16 @@ plt.axis('off')
 
 # Segmented image slice
 plt.subplot(1, 2, 2)
-plt.imshow(sitk.GetArrayFromImage(segmented_slice), cmap='magma')
+plt.imshow(sitk.GetArrayFromImage(segmented_slice), cmap='Blues')
 plt.title('Segmented Image Slice')
 plt.axis('off')
 
 plt.show()
+
+# After your segmentation process
+segmented_image = confidence_connected
+print("Segmentation pixel values:", np.unique(sitk.GetArrayFromImage(segmented_image)))
+segmented_np = sitk.GetArrayFromImage(segmented_image)
+segmented_image = sitk.GetImageFromArray(segmented_np)
+output_filename = 'data/results/segmented_image.nii'
+sitk.WriteImage(segmented_image, output_filename)
