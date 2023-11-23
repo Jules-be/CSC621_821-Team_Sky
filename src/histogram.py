@@ -15,7 +15,7 @@ segmented_image_path = sys.argv[2]
 
 # Convert slice_index to integer
 try:
-    slice_idx = int(sys.argv[2])
+    slice_idx = int(sys.argv[3])
     if slice_idx < 0 or slice_idx > 9:
         print("Error: slice_index must be between 0 and 9.")
         sys.exit(1)

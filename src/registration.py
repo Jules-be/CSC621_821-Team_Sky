@@ -35,7 +35,7 @@ moving_resampled = sitk.Resample(moving_image, fixed_image, initial_transform, s
 
 # Initialize B-Spline Transform
 print("Setting up registration...")
-transformDomainMeshSize = [16] * moving_image.GetDimension()
+transformDomainMeshSize = [16] * moving_resampled.GetDimension()
 b_spline_transform = sitk.BSplineTransformInitializer(fixed_image, transformDomainMeshSize)
 
 # Set up the Registration Method
@@ -50,12 +50,12 @@ registration_method.AddCommand(sitk.sitkIterationEvent, lambda: command_iteratio
 try:
     # Execute Registration
     print("Starting registration...")
-    final_transform = registration_method.Execute(fixed_image, moving_image)
+    final_transform = registration_method.Execute(fixed_image, moving_resampled)
     print("Registration completed.")
 
     # Resample the Moving Image
     print("Resampling moving image...")
-    moving_resampled = sitk.Resample(moving_image, fixed_image, final_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
+    moving_resampled = sitk.Resample(moving_resampled, fixed_image, final_transform, sitk.sitkLinear, 0.0, moving_resampled.GetPixelID())
 
     # Write the images
     print("Writing output images...")
