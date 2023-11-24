@@ -37,9 +37,63 @@ segmented_slice = segmented_np[slice_idx, :, :]
 # Apply the mask
 masked_slice = np.where(segmented_slice == 1, source_slice, 0)
 
-glcm = graycomatrix(masked_slice.astype(np.uint8), distances=[1], angles=[0], levels=256, symmetric=True, normed=True)
+# Assuming background pixels are 0
+background_value = 0
+
+# Identify non-background pixels
+non_background_positions = np.where(masked_slice != background_value)
+
+# Find the bounding box coordinates
+min_y, max_y = np.min(non_background_positions[0]), np.max(non_background_positions[0])
+min_x, max_x = np.min(non_background_positions[1]), np.max(non_background_positions[1])
+
+# Crop the masked_slice
+cropped_masked_slice = masked_slice[min_y:max_y+1, min_x:max_x+1]
+
+# Plot the original and cropped side by side
+plt.figure(figsize=(12, 6))
+
+# Masked image slice
+plt.subplot(1, 2, 1)
+plt.imshow(masked_slice, cmap='gray', interpolation='none', aspect='equal')
+plt.colorbar()
+plt.title('Original Masked Slice')
+plt.axis('off')
+
+# Cropped image slice
+plt.subplot(1, 2, 2)
+plt.imshow(cropped_masked_slice, cmap='gray', interpolation='none', aspect='equal')
+plt.colorbar()
+plt.title("Cropped Masked Slice")
+plt.axis('off')
+
+plt.show()
+
+glcm = graycomatrix(cropped_masked_slice.astype(np.uint8), distances=[1], angles=[0], levels=256, symmetric=True, normed=True)
 
 # Calculate texture properties
-print("Contrast:", graycoprops(glcm, 'contrast'))
-print("Dissimilarity:", graycoprops(glcm, 'dissimilarity'))
-print("Homogeneity:", graycoprops(glcm, 'homogeneity'))
+contrast = graycoprops(glcm, 'contrast')[0, 0]
+dissimilarity = graycoprops(glcm, 'dissimilarity')[0, 0]
+homogeneity = graycoprops(glcm, 'homogeneity')[0, 0]
+print(f"Contrast: {contrast:.2f}")
+print(f"Dissimilarity: {dissimilarity:.2f}")
+print(f"Homogeneity: {homogeneity:.2f}")
+
+# Mean and Standard Deviation
+mean = np.nanmean(masked_slice)
+std_dev = np.nanstd(masked_slice)
+print(f"Mean: {mean:.2f}")
+print(f"Standard Deviation: {std_dev:.2f}")
+
+# Regularity (Smoothness)
+variance = np.nanvar(masked_slice)
+smoothness = 1 - (1 / (1 + variance))
+print(f"Regularity (Smoothness): {smoothness:.2f}")
+
+# Shannon Entropy
+entropy = -np.sum(glcm * np.log2(glcm + (glcm == 0)))
+print(f"Shannon Entropy: {entropy:.2f}")
+
+# Uniformity (Energy)
+uniformity = np.sum(glcm**2)
+print(f"Uniformity (Energy): {uniformity:.2f}")
