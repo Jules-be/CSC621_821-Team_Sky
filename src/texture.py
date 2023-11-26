@@ -35,7 +35,7 @@ source_slice = source_np[slice_idx, :, :]
 segmented_slice = segmented_np[slice_idx, :, :]
 
 # Apply the mask
-masked_slice = np.where(segmented_slice == 1, source_slice, 0)
+masked_slice = np.where(segmented_slice == 255, source_slice, 0)
 
 # Assuming background pixels are 0
 background_value = 0

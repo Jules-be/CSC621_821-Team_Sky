@@ -35,7 +35,7 @@ source_slice = source_np[slice_idx, :, :]
 segmented_slice = segmented_np[slice_idx, :, :]
 
 # Apply the mask
-masked_slice = np.where(segmented_slice == 1, source_slice, 0)
+masked_slice = np.where(segmented_slice == 255, source_slice, 0)
 
 # Flatten the array for histogram plotting
 flat_masked_slice = masked_slice.flatten()

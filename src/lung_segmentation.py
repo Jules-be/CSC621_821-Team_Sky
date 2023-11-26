@@ -85,10 +85,17 @@ plt.axis('off')
 
 plt.show()
 
-# After your segmentation process
 segmented_image = confidence_connected
 print("Segmentation pixel values:", np.unique(sitk.GetArrayFromImage(segmented_image)))
+# Convert the segmented SimpleITK image to a NumPy array
 segmented_np = sitk.GetArrayFromImage(segmented_image)
-segmented_image = sitk.GetImageFromArray(segmented_np)
+
+# Rescale the pixel values: 1 -> 255, 0 stays as 0
+segmented_np_rescaled = (segmented_np * 255).astype(np.uint8)
+
+# Convert the rescaled NumPy array back to a SimpleITK image
+segmented_image_rescaled = sitk.GetImageFromArray(segmented_np_rescaled)
+
+# Save the rescaled segmented image
 output_filename = 'data/results/segmented_image.nii'
-sitk.WriteImage(segmented_image, output_filename)
+sitk.WriteImage(segmented_image_rescaled, output_filename)
