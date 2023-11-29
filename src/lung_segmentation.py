@@ -5,7 +5,7 @@ import sys
 
 # Check if the script received the folder path as an argument
 if len(sys.argv) < 5:
-    print("Usage: python script_name.py <folder_path> <slice_index> <number_of_seed_points> <output_path>")
+    print("Usage: python lung_segmentation.py <folder_path> <slice_index> <number_of_seed_points> <output_path>")
     sys.exit(1)
 
 # Path to the original and output files
@@ -58,7 +58,7 @@ def onclick(event):
 
 # Display an image slice
 plt.imshow(np_image[slice_idx], cmap='gray')
-plt.title('Click to select 4 points')
+plt.title(f'Click to select {nb_seed} points')
 plt.axis('off')
 
 seed_points = []
