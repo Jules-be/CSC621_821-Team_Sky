@@ -1,13 +1,31 @@
 import SimpleITK as sitk
+import sys
+
+# Check if the script received the folder path as an argument
+if len(sys.argv) < 5:
+    print("Usage: python bspline_registration.py <fixed_image_folder> <moving_image_folder> <number_of_iterations> <output_path>")
+    sys.exit(1)
 
 def command_iteration(method):
     print(f"Optimizer iteration: {method.GetOptimizerIteration()}, Metric value: {method.GetMetricValue()}")
 
+fixed_path = sys.argv[1]
+moving_path = sys.argv[2]
+output_path = sys.argv[4]
+
+# Convert number_of_iterations to integer
+try:
+    nb_iterations = int(sys.argv[3])
+    if nb_iterations < 0:
+        print("Error: number_of_iterations must be larger than 0.")
+        sys.exit(1)
+except ValueError:
+    print("Error: number_of_iterations must be an integer.")
+    sys.exit(1)
+
 # Read the images
-fixed_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames('data/covid_negative_data/patient_1'))
-moving_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames('data/covid_negative_data/patient_2'))
-# fixed_image = sitk.ReadImage('data/results/extracted_lungs_1.nii')
-# moving_image = sitk.ReadImage('data/results/extracted_lungs_2.nii')
+fixed_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(fixed_path))
+moving_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(moving_path))
 
 # Convert the images to Float32
 fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
@@ -43,7 +61,7 @@ b_spline_transform = sitk.BSplineTransformInitializer(fixed_image, transformDoma
 # Set up the Registration Method
 registration_method = sitk.ImageRegistrationMethod()
 registration_method.SetMetricAsCorrelation()
-registration_method.SetOptimizerAsLBFGSB(gradientConvergenceTolerance=1e-5, numberOfIterations=5, maximumNumberOfCorrections=2, maximumNumberOfFunctionEvaluations=500, costFunctionConvergenceFactor=1e7)
+registration_method.SetOptimizerAsLBFGSB(gradientConvergenceTolerance=1e-5, numberOfIterations=nb_iterations, maximumNumberOfCorrections=2, maximumNumberOfFunctionEvaluations=500, costFunctionConvergenceFactor=1e7)
 registration_method.SetInitialTransform(b_spline_transform, True)
 registration_method.SetInterpolator(sitk.sitkLinear)
 
@@ -62,7 +80,7 @@ try:
     # Write the images
     print("Writing output images...")
     sitk.WriteImage(fixed_image, 'data/results/fixed_image.nii')
-    sitk.WriteImage(moving_resampled, 'data/results/moving_image_registered.nii')
+    sitk.WriteImage(moving_resampled, f"{output_path}.nii")
     print("Process completed successfully.")
 
 except RuntimeError as e:
