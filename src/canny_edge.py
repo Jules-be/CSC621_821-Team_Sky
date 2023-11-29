@@ -1,34 +1,37 @@
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Load the image
 image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames('data/covid_negative_data/patient_1'))
 
-# Denoise the image
-denoised_image = sitk.GrayscaleDilate(image)
+# Apply CurvatureFlowImageFilter for denoising
+curvature_flow_filter = sitk.CurvatureFlowImageFilter()
+curvature_flow_filter.SetNumberOfIterations(2)
+curvature_flow_filter.SetTimeStep(0.05)
+denoised_image = curvature_flow_filter.Execute(image)
 
 # Rescale the intensity to 0-255
 rescaled_image = sitk.RescaleIntensity(denoised_image, 0, 255)
-
-# Convert the image back to 16-bit
-rescaled_image = sitk.Cast(rescaled_image, sitk.sitkInt16)
+rescaled_image = sitk.Cast(rescaled_image, sitk.sitkUInt8)
 
 # Apply Canny Edge Detection
-canny_edge = sitk.CannyEdgeDetection(sitk.Cast(rescaled_image, sitk.sitkFloat32), lowerThreshold=5, upperThreshold=20)
-canny_array = sitk.GetArrayFromImage(canny_edge)
-print("Data range:", canny_array.min(), canny_array.max())
+canny_edge = sitk.CannyEdgeDetection(sitk.Cast(rescaled_image, sitk.sitkFloat32), lowerThreshold=2, upperThreshold=10)
+canny_edge = sitk.Cast(canny_edge, sitk.sitkUInt8)
+canny_edge = canny_edge * 255
 
-# Save or display
-sitk.WriteImage(canny_edge, 'data/results/canny_patient_1.nrrd')
+# Convert SimpleITK images to NumPy arrays
+rescaled_array = sitk.GetArrayFromImage(rescaled_image)
+canny_edge_array = sitk.GetArrayFromImage(canny_edge)
 
-# Select a slice to visualize
-slice_number = 4
-selected_slice = canny_array[slice_number, :, :]
+# Create a binary mask from the canny edge image (edges are 1, rest are 0)
+edge_mask = canny_edge_array > 0
 
-# Visualization
-plt.figure()
-plt.imshow(selected_slice, cmap='gray')
-plt.colorbar()
-plt.show()
+# Overlay the images
+# Increase the intensity of edges for better visibility if needed
+edge_intensity = 160
+overlay_image = np.where(edge_mask, edge_intensity, rescaled_array)
+overlay_image = sitk.GetImageFromArray(overlay_image)
 
+sitk.WriteImage(overlay_image, 'data/results/canny_edges_patient_1.nii')
 

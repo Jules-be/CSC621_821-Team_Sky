@@ -33,16 +33,12 @@ except ValueError:
     sys.exit(1)
 
 # Load the image
-image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(folder_path))
+if folder_path.endswith('.nii'):
+    image = sitk.ReadImage(folder_path)
+else:
+    image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(folder_path))
 
-# Denoise the image
-denoised_image = sitk.GrayscaleDilate(image)
-
-# Rescale the intensity to 0-255
-rescaled_image = sitk.RescaleIntensity(denoised_image, 0, 255)
-
-# Convert the SimpleITK image to a NumPy array
-np_image = sitk.GetArrayFromImage(rescaled_image)
+np_image = sitk.GetArrayFromImage(image)
 
 # Function to handle mouse click event
 def onclick(event):
@@ -71,10 +67,10 @@ plt.show()
 # Flatten the array to 1D for histogram plotting
 flattened_image_array = np_image.flatten()
 
-confidence_connected = sitk.ConfidenceConnected(rescaled_image, seedList=seed_points, numberOfIterations=10, multiplier=2, initialNeighborhoodRadius=1, replaceValue=1)
+confidence_connected = sitk.ConfidenceConnected(image, seedList=seed_points, numberOfIterations=5, multiplier=1, initialNeighborhoodRadius=1, replaceValue=1)
 
 # Extract the 2D slice from the 3D rescaled image
-rescaled_slice = rescaled_image[:, :, slice_idx]
+rescaled_slice = image[:, :, slice_idx]
 
 # Extract the 2D slice from the 3D segmented image
 segmented_slice = confidence_connected[:, :, slice_idx]

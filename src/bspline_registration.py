@@ -24,8 +24,15 @@ except ValueError:
     sys.exit(1)
 
 # Read the images
-fixed_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(fixed_path))
-moving_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(moving_path))
+if fixed_path.endswith('.nii'):
+    fixed_image = sitk.ReadImage(fixed_path)
+else:
+    fixed_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(fixed_path))
+
+if moving_path.endswith('.nii'):
+    moving_image = sitk.ReadImage(moving_path)
+else:
+    moving_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(moving_path))
 
 # Convert the images to Float32
 fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)

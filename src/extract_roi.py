@@ -13,8 +13,15 @@ segmented_image_path = sys.argv[2]
 output_path = sys.argv[3]
 
 # Read the original and segmented images
-source_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(source_image_path))
-segmented_image = sitk.ReadImage(segmented_image_path)
+if source_image_path.endswith('.nii'):
+    source_image = sitk.ReadImage(source_image_path)
+else:
+    source_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(source_image_path))
+
+if segmented_image_path.endswith('.nii'):
+    segmented_image = sitk.ReadImage(segmented_image_path)
+else:
+    segmented_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(segmented_image_path))
 
 source_np = sitk.GetArrayFromImage(source_image)
 segmented_np = sitk.GetArrayFromImage(segmented_image)
