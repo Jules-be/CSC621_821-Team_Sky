@@ -4,12 +4,13 @@ import numpy as np
 import sys
 
 # Check if the script received the folder path as an argument
-if len(sys.argv) < 3:
-    print("Usage: python script_name.py <folder_path> <slice_index>")
+if len(sys.argv) < 5:
+    print("Usage: python script_name.py <folder_path> <slice_index> <number_of_seed_points> <output_path>")
     sys.exit(1)
 
-# Retrieve the folder path from the command line argument
+# Path to the original and output files
 folder_path = sys.argv[1]
+output_path = sys.argv[4]
 
 # Convert slice_index to integer
 try:
@@ -19,6 +20,16 @@ try:
         sys.exit(1)
 except ValueError:
     print("Error: slice_index must be an integer.")
+    sys.exit(1)
+
+# Convert nb_seed to integer
+try:
+    nb_seed = int(sys.argv[3])
+    if slice_idx < 2:
+        print("Error: number_of_seed_points must be larger than 2.")
+        sys.exit(1)
+except ValueError:
+    print("Error: number_of_seed_points must be an integer.")
     sys.exit(1)
 
 # Load the image
@@ -41,8 +52,8 @@ def onclick(event):
     count += 1
     print(f"Point {count}: ({ix}, {iy})")
 
-    # Disconnect after 4 points are selected
-    if count == 4:
+    # Disconnect after nb_seed points are selected
+    if count == nb_seed:
         fig.canvas.mpl_disconnect(cid)
 
 # Display an image slice
@@ -97,5 +108,5 @@ segmented_np_rescaled = (segmented_np * 255).astype(np.uint8)
 segmented_image_rescaled = sitk.GetImageFromArray(segmented_np_rescaled)
 
 # Save the rescaled segmented image
-output_filename = 'data/results/segmented_image.nii'
-sitk.WriteImage(segmented_image_rescaled, output_filename)
+output_path = f"{output_path}.nii"
+sitk.WriteImage(segmented_image_rescaled, output_path)
