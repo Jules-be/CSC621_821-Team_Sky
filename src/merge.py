@@ -10,11 +10,6 @@ fixed_path = sys.argv[1]
 moving_path = sys.argv[2]
 output_path = sys.argv[3]
 
-print(moving_path)
-# Read the images
-fixed_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames('data/covid_negative_data/patient_1'))
-moving_image = sitk.ReadImage('data/results/moving_image_registered_10_iter.nii')
-
 # Read the images
 if fixed_path.endswith('.nii'):
     fixed_image = sitk.ReadImage(fixed_path)
