@@ -85,8 +85,7 @@ try:
     moving_resampled = sitk.Resample(moving_resampled, fixed_image, final_transform, sitk.sitkLinear, 0.0, moving_resampled.GetPixelID())
 
     # Write the images
-    print("Writing output images...")
-    sitk.WriteImage(fixed_image, 'data/results/fixed_image.nii')
+    print("Writing output image...")
     sitk.WriteImage(moving_resampled, f"{output_path}.nii")
     print("Process completed successfully.")
 
