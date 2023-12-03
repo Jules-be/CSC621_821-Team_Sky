@@ -1,9 +1,20 @@
 import SimpleITK as sitk
-import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
-# Load the image
-image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames('data/covid_negative_data/patient_1'))
+# Check if the script received the folder path as an argument
+if len(sys.argv) < 3:
+    print("Usage: python canny_edge.py <image_path> <output_path>")
+    sys.exit(1)
+
+fixed_path = sys.argv[1]
+output_path = sys.argv[2]
+
+# Read the images
+if fixed_path.endswith('.nii'):
+    image = sitk.ReadImage(fixed_path)
+else:
+    image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(fixed_path))
 
 # Apply CurvatureFlowImageFilter for denoising
 curvature_flow_filter = sitk.CurvatureFlowImageFilter()
@@ -33,5 +44,4 @@ edge_intensity = 160
 overlay_image = np.where(edge_mask, edge_intensity, rescaled_array)
 overlay_image = sitk.GetImageFromArray(overlay_image)
 
-sitk.WriteImage(overlay_image, 'data/results/canny_edges_patient_1.nii')
-
+sitk.WriteImage(overlay_image, f"{output_path}.nii")
