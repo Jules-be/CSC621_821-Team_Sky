@@ -25,7 +25,7 @@ except ValueError:
 # Convert nb_seed to integer
 try:
     nb_seed = int(sys.argv[3])
-    if slice_idx < 2:
+    if nb_seed < 2:
         print("Error: number_of_seed_points must be larger than 2.")
         sys.exit(1)
 except ValueError:
