@@ -21,8 +21,7 @@ if moving_path.endswith('.nii'):
 else:
     moving_image = sitk.ReadImage(sitk.ImageSeriesReader_GetGDCMSeriesFileNames(moving_path))
 
-
-# Cast both images to the same pixel type (e.g., 32-bit float)
+# Cast both images to the same pixel type
 fixed_image_float = sitk.Cast(fixed_image, sitk.sitkFloat32)
 moving_image_float = sitk.Cast(moving_image, sitk.sitkFloat32)
 
